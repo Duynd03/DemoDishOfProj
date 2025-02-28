@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "vIZZm/1mJpKE9qDiiZ4IDLLtYl0n7F1gw7ceiAdvlI4=",
+  "Hash": "VgOkdGhWMlsc/oXfzUXUQVGzWUReInMyw29p2f7zhEU=",
   "Source": "DemoDishOfProj",
   "BasePath": "_content/DemoDishOfProj",
   "Mode": "Default",
@@ -2371,6 +2371,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\back2.jpg"
+    },
+    {
+      "Identity": "E:\\Study\\C#\\DemoDishOfProj\\DemoDishOfProj\\wwwroot\\uploads\\dream.jpg",
+      "SourceId": "DemoDishOfProj",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\Study\\C#\\DemoDishOfProj\\DemoDishOfProj\\wwwroot\\",
+      "BasePath": "_content/DemoDishOfProj",
+      "RelativePath": "uploads/dream.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\dream.jpg"
     }
   ]
 }

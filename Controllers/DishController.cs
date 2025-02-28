@@ -47,20 +47,20 @@ namespace DemoDishOfProj.Controllers
 
         // Thêm món ăn bằng AJAX
         [HttpPost]
-        [HttpPost]
         public async Task<IActionResult> Create(Dish dish, IFormFile ImageFile)
         {
             if (ModelState.IsValid)
             {
                 if (ImageFile != null && ImageFile.Length > 0)
                 {
-                    var fileName = Path.GetFileName(ImageFile.FileName);
+                    var fileName = Path.GetFileName(ImageFile.FileName); // Chỉ lấy tên file
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", fileName);
+
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await ImageFile.CopyToAsync(stream);
                     }
-                    dish.Image = "/uploads/" + fileName;
+                    dish.Image = fileName; // Chỉ lưu tên file
                 }
 
                 _context.Dishes.Add(dish);
@@ -69,6 +69,7 @@ namespace DemoDishOfProj.Controllers
             }
             return Json(new { success = false, message = "Dữ liệu không hợp lệ!" });
         }
+
         public async Task<IActionResult> GetDish(int id)
         {
             if (id <= 0) return BadRequest("ID không hợp lệ!");
@@ -81,7 +82,7 @@ namespace DemoDishOfProj.Controllers
 
         // Chỉnh sửa món ăn bằng AJAX
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, Dish dish)
+        public async Task<IActionResult> Edit(int id, Dish dish, IFormFile ImageFile)
         {
             if (id != dish.Id) return NotFound();
 
@@ -93,8 +94,36 @@ namespace DemoDishOfProj.Controllers
                 existingDish.Name = dish.Name;
                 existingDish.Description = dish.Description;
                 existingDish.Price = dish.Price;
-                existingDish.Image = dish.Image;
                 existingDish.CategoryId = dish.CategoryId;
+
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                    if (!Directory.Exists(uploadFolder))
+                    {
+                        Directory.CreateDirectory(uploadFolder);
+                    }
+
+                    // Xóa ảnh cũ nếu có
+                    if (!string.IsNullOrEmpty(existingDish.Image))
+                    {
+                        var oldFilePath = Path.Combine(uploadFolder, existingDish.Image);
+                        if (System.IO.File.Exists(oldFilePath))
+                        {
+                            System.IO.File.Delete(oldFilePath);
+                        }
+                    }
+
+                    // Lưu ảnh mới
+                    var fileName = Path.GetFileName(ImageFile.FileName); // Chỉ lấy tên file
+                    var filePath = Path.Combine(uploadFolder, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(stream);
+                    }
+                    existingDish.Image = fileName; // Chỉ lưu tên file
+                }
+
                 await _context.SaveChangesAsync();
                 return Json(new { success = true });
             }

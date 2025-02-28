@@ -160,33 +160,26 @@
         });
 
         // Sửa món ăn
-        $("#editForm").submit(function (e) {
-            e.preventDefault();
-            var formData = new FormData(this);
-            $.ajax({
-                url: "/Dish/Edit",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    if (response.success) {
-                        $("#editModal").modal("hide");
-                        loadData(1);
-                    }
-                }
+        $(document).on("click", ".edit-btn", function () {
+            var id = $(this).data("id");
+            $.get("/Dish/GetDish", { id: id }, function (data) {
+                $("#editDishId").val(data.id);
+                $("#editDishName").val(data.name);
+                $("#editDishDescription").val(data.description);
+                $("#editDishPrice").val(data.price);
+                $("#editDishCategory").val(data.categoryId);
+                $("#editModal").modal("show");
             });
         });
 
+
         // Xóa món ăn
-        $("#confirmDelete").click(function () {
-            var id = $("#deleteDishId").val();
-            $.post("/Dish/Delete", { id: id }, function (response) {
-                if (response.success) {
-                    $("#deleteModal").modal("hide");
-                    loadData(1);
-                }
-            });
+        $(document).on("click", ".delete-btn", function () {
+            var id = $(this).data("id");
+            $("#deleteDishId").val(id);
+            $("#deleteModal").modal("show");
         });
+
+        
     });
 </script>

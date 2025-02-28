@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DemoDishOfProj")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a91621aa8b6ec78768460a9d8e979e49576451c7")]
 [assembly: System.Reflection.AssemblyProductAttribute("DemoDishOfProj")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DemoDishOfProj")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
