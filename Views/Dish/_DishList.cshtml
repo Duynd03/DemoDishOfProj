@@ -1,0 +1,40 @@
+﻿@model X.PagedList.IPagedList<DemoDishOfProj.Models.Dish>
+@using X.PagedList.Mvc.Core
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên món ăn</th>
+            <th>Mô tả</th>
+            <th>Giá</th>
+            <th>Hình ảnh</th>
+            <th>Danh mục</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>@item.Price</td>
+                <td><img src="@item.Image" alt="Image" style="width:100px; height:auto;" /></td>
+                <td>@item.Category?.Name</td>
+                <td>
+                    <button class="btn btn-warning btn-sm editBtn" data-id="@item.Id">Sửa</button>
+                    <button class="btn btn-danger btn-sm deleteBtn" data-id="@item.Id">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new PagedListRenderOptions
+{
+    UlElementClasses = new[] { "pagination", "justify-content-center" },
+    LiElementClasses = new[] { "page-item" },
+    PageClasses = new[] { "page-link" }
+})

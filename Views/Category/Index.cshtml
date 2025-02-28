@@ -1,0 +1,184 @@
+﻿@model X.PagedList.IPagedList<DemoDishOfProj.Models.Category>
+@using X.PagedList.Mvc.Core
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Quản lý Danh Mục</h2>
+
+    <!-- Nút Thêm Danh Mục -->
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createModal">
+        <i class="fas fa-plus"></i> Thêm danh mục
+    </button>
+
+    <!-- Ô tìm kiếm -->
+    <div class="input-group mb-3">
+        <input type="text" id="searchBox" placeholder="Tìm kiếm danh mục" class="form-control">
+        <button id="searchButton" class="btn btn-primary">
+            <i class="fas fa-search"></i> Tìm kiếm
+        </button>
+    </div>
+
+    <!-- Vùng hiển thị danh mục -->
+    <div id="categoryList">
+        @await Html.PartialAsync("_CategoryList", Model)
+    </div>
+</div>
+
+<!-- Modal Thêm Danh Mục -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm danh mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm">
+                    <div class="mb-3">
+                        <label class="form-label">Tên danh mục</label>
+                        <input type="text" class="form-control" id="categoryName" name="Name" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chỉnh Sửa -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa danh mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="editCategoryId" name="Id">
+                    <div class="mb-3">
+                        <label class="form-label">Tên danh mục</label>
+                        <input type="text" class="form-control" id="editCategoryName" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">Bạn có chắc chắn muốn xóa danh mục này?</p>
+                <input type="hidden" id="deleteCategoryId">
+            </div>
+            <div class="modal-footer">
+                <button id="confirmDelete" class="btn btn-danger w-100">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        function loadData(page) {
+            var search = $("#searchBox").val();
+            $.ajax({
+                url: "/Category/Search",
+                type: "GET",
+                data: { search: search, page: page },
+                success: function (result) {
+                    $("#categoryList").html(result);
+                }
+            });
+        }
+
+        // Tìm kiếm
+        $("#searchButton").click(function () {
+            loadData(1);
+        });
+
+        // Phân trang
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            var page = new URL($(this).attr("href"), window.location.origin).searchParams.get("page");
+            loadData(page);
+        });
+
+        // Thêm danh mục
+        $("#createForm").submit(function (e) {
+            e.preventDefault();
+            var name = $("#categoryName").val().trim();
+            if (name === "") {
+                alert("Tên danh mục không được để trống!");
+                return;
+            }
+            $.post("/Category/Create", { Name: name })
+                .done(function (response) {
+                    if (response.success) {
+                        $("#createModal").modal("hide");
+                        $("#categoryName").val("");
+                        loadData(1);
+                    } else {
+                        alert("Thêm danh mục thất bại: " + response.message);
+                    }
+                })
+                .fail(function (xhr) {
+                    alert("Lỗi server: " + xhr.responseText);
+                });
+        });
+
+        // Lấy thông tin danh mục để sửa
+        $(document).on("click", ".editBtn", function () {
+            var id = $(this).data("id");
+            var name = $(this).data("name");
+            $("#editCategoryId").val(id);
+            $("#editCategoryName").val(name);
+            $("#editModal").modal("show");
+        });
+
+        // Sửa danh mục
+        $("#editForm").submit(function (e) {
+            e.preventDefault();
+            var id = $("#editCategoryId").val();
+            var name = $("#editCategoryName").val();
+            $.post("/Category/Edit", { Id: id, Name: name }, function (response) {
+                if (response.success) {
+                    $("#editModal").modal("hide");
+                    loadData(1);
+                }
+            });
+        });
+
+        // Mở modal xóa
+        $(document).on("click", ".deleteBtn", function () {
+            var id = $(this).data("id");
+            $("#deleteCategoryId").val(id);
+            $("#deleteModal").modal("show");
+        });
+
+        // Xóa danh mục
+        $("#confirmDelete").click(function () {
+            var id = $("#deleteCategoryId").val();
+            $.post("/Category/Delete", { id: id }, function (response) {
+                if (response.success) {
+                    $("#deleteModal").modal("hide");
+                    loadData(1);
+                }
+            });
+        });
+        $(document).on('hidden.bs.modal', function () {
+            $('.modal-backdrop').remove();
+        });
+    });
+</script>

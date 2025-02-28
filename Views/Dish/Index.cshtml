@@ -1,0 +1,192 @@
+﻿@model X.PagedList.IPagedList<DemoDishOfProj.Models.Dish>
+@using X.PagedList.Mvc.Core
+@{
+    ViewData["Title"] = "Quản lý món ăn";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Quản lý Món Ăn</h2>
+
+    <!-- Nút Thêm Món Ăn -->
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createModal">
+        <i class="fas fa-plus"></i> Thêm món ăn
+    </button>
+
+    <!-- Ô tìm kiếm -->
+    <div class="input-group mb-3">
+        <input type="text" id="searchBox" placeholder="Tìm kiếm món ăn" class="form-control">
+        <button id="searchButton" class="btn btn-primary">
+            <i class="fas fa-search"></i> Tìm kiếm
+        </button>
+    </div>
+
+    <!-- Vùng hiển thị món ăn -->
+    <div id="dishList">
+        @await Html.PartialAsync("_DishList", Model)
+    </div>
+</div>
+
+<!-- Modal Thêm Món Ăn -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm món ăn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Tên món ăn</label>
+                        <input type="text" class="form-control" id="dishName" name="Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <input type="text" class="form-control" id="dishDescription" name="Description" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Giá</label>
+                        <input type="number" class="form-control" id="dishPrice" name="Price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hình ảnh</label>
+                        <input type="file" class="form-control" id="dishImage" name="ImageFile" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Danh mục</label>
+                        <select class="form-control" id="dishCategory" name="CategoryId" required>
+                            <option value="">Chọn danh mục</option>
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chỉnh Sửa -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa món ăn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" enctype="multipart/form-data">
+                    <input type="hidden" id="editDishId" name="Id">
+                    <div class="mb-3">
+                        <label class="form-label">Tên món ăn</label>
+                        <input type="text" class="form-control" id="editDishName" name="Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <input type="text" class="form-control" id="editDishDescription" name="Description" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Giá</label>
+                        <input type="number" class="form-control" id="editDishPrice" name="Price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hình ảnh</label>
+                        <input type="file" class="form-control" id="editDishImage" name="ImageFile">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Danh mục</label>
+                        <select class="form-control" id="editDishCategory" name="CategoryId" required>
+                            <option value="">Chọn danh mục</option>
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">Bạn có chắc chắn muốn xóa món ăn này?</p>
+                <input type="hidden" id="deleteDishId">
+            </div>
+            <div class="modal-footer">
+                <button id="confirmDelete" class="btn btn-danger w-100">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Thêm món ăn
+        $("#createForm").submit(function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: "/Dish/Create",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        $("#createModal").modal("hide");
+                        $("#createForm")[0].reset();
+                        loadData(1);
+                    } else {
+                        alert("Thêm món ăn thất bại: " + response.message);
+                    }
+                },
+                error: function (xhr) {
+                    alert("Lỗi server: " + xhr.responseText);
+                }
+            });
+        });
+
+        // Sửa món ăn
+        $("#editForm").submit(function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: "/Dish/Edit",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        $("#editModal").modal("hide");
+                        loadData(1);
+                    }
+                }
+            });
+        });
+
+        // Xóa món ăn
+        $("#confirmDelete").click(function () {
+            var id = $("#deleteDishId").val();
+            $.post("/Dish/Delete", { id: id }, function (response) {
+                if (response.success) {
+                    $("#deleteModal").modal("hide");
+                    loadData(1);
+                }
+            });
+        });
+    });
+</script>
